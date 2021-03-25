@@ -1,0 +1,19 @@
+
+body {
+	background:darkgrey;
+}
+#page {
+	box-sizing: border-box;
+	border: 1px solid #665544;
+	background: #efefef;
+	width: 60%;
+	margin: auto;
+	text-align: center;			
+}
+
+ul>li {
+	display: inline;
+	margin: auto;
+	width: 60%;
+	text-align: right;
+}
