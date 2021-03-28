@@ -8,7 +8,7 @@
 			<header><h1>Projects</h1></header>
 			<nav>
 				<ul>
-                                        <li><a href="Home.html">HOME</a></li>
+                    <li><a href="index.html">HOME</a></li>
 					<li><a href="#PRO1">Project one</a></li>
 					<li><a href="#PRO2">Project two</a></li>
 					<li><a href="#PRO3">Project three</a></li>
