@@ -1,108 +1,757 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Page Title</title>
-<link href="styles.css" type="text/css" rel="stylesheet" />
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 12 Hallmarks of Aging — Interactive Therapeutics Map</title>
 <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #0a0a0f;
+  color: #e0e0e0;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  text-align: center;
+  color: #888;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+/* Navigation */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.nav-btn {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  color: #ccc;
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  background: #667eea;
+  color: #fff;
+  border-color: #667eea;
+}
+
+.section { display: none; }
+.section.active { display: block; }
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #aaa;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #14141f;
+  border: 1px solid #2a2a3a;
+  border-radius: 12px;
+  padding: 1.4rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.card:hover {
+  border-color: #667eea;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-number {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.card-category {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.3rem;
+  display: inline-block;
+}
+
+.cat-primary { background: #1a3a2a; color: #4ade80; }
+.cat-antagonistic { background: #3a2a1a; color: #fbbf24; }
+.cat-integrative { background: #2a1a3a; color: #c084fc; }
+
+.card-desc {
+  font-size: 0.85rem;
+  color: #999;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  max-width: 95vw;
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  border-radius: 12px;
+  padding: 1.2rem;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+.card:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.tooltip h4 {
+  font-size: 0.85rem;
+  color: #667eea;
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tooltip-desc {
+  font-size: 0.82rem;
+  color: #bbb;
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #2a2a3a;
+}
+
+.therapy-section {
+  margin-bottom: 0.7rem;
+}
+
+.therapy-section h5 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 0.4rem;
+}
+
+.therapy-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.tag {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 20px;
+  background: #222238;
+  color: #ccc;
+  border: 1px solid #333350;
+  white-space: nowrap;
+}
+
+.tag-proven { background: #1a2a1a; color: #4ade80; border-color: #2a4a2a; }
+.tag-experimental { background: #2a1a2a; color: #f472b6; border-color: #4a2a4a; }
+.tag-lifestyle { background: #1a2a3a; color: #60a5fa; border-color: #2a3a5a; }
+.tag-supplement { background: #2a2a1a; color: #fbbf24; border-color: #4a4a2a; }
+
+/* Overlap counter */
+.overlap-bar {
+  background: #14141f;
+  border: 1px solid #2a2a3a;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-top: 2rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.overlap-bar h3 {
+  font-size: 0.85rem;
+  color: #667eea;
+  margin-bottom: 0.5rem;
+}
+
+.overlap-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.overlap-item {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  background: #222238;
+  border-radius: 4px;
+  color: #aaa;
+}
+
+.overlap-item strong { color: #667eea; }
+
+/* ====== PROTOCOL SECTION ====== */
+.protocol-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.protocol-section h2 {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.protocol-section .proto-sub {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.proto-block {
+  background: #14141f;
+  border: 1px solid #2a2a3a;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.proto-block h3 {
+  font-size: 1.1rem;
+  color: #667eea;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.proto-block h3 .emoji { font-size: 1.3rem; }
+
+table.proto-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+table.proto-table th {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  background: #1a1a2e;
+  color: #667eea;
+  font-weight: 600;
+  border-bottom: 1px solid #2a2a3a;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+}
+
+table.proto-table td {
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid #1e1e30;
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+table.proto-table tr:hover td {
+  background: #1a1a2e;
+}
+
+.time-badge {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hallmark-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.hallmark-pill {
+  background: #222238;
+  color: #888;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+
+.note-text {
+  color: #777;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.warn-box {
+  background: #2a1a1a;
+  border: 1px solid #4a2a2a;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.warn-box h4 {
+  color: #f87171;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.warn-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.warn-box li {
+  font-size: 0.8rem;
+  color: #ccc;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #2a1a1a;
+}
+
+.warn-box li:last-child { border-bottom: none; }
+
+.meal-macro {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.macro-card {
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.macro-card .val {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.macro-card .label {
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2a2a3a;
+  font-size: 0.75rem;
+  color: #555;
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .tooltip {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px 12px 0 0;
+    transform: none;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  table.proto-table { font-size: 0.72rem; }
+  table.proto-table td, table.proto-table th { padding: 0.4rem 0.5rem; }
 }
 </style>
 </head>
 <body>
-<div class="header">
-	<img src='hanging-bridge-forest-trees.jpg' alt='forest' style='width:100%'>
-  <h1>Welcome</h1>
-</div>
-<div class="navbar">
-  <div class="dropdown">
-			<button class="dropbtn">
-				Nutrition
-			</button>
-		        <div class="dropdown-content">
-				<a href="nutrition.html#OMAD">OMAD</a>
-				<a href="nutrition.html#KETO">KETO</a>
-			        <a href="nutrition.html#CALRES">Calorie Restriction</a>
-			        <a href="nutrition.html#IF">Intermittent Fasting</a>
-			        <a href="nutrition.html#WF">Water Fasting</a>
-			        <a href="nutrition.html#CARNI">Carnivore Diet</a>
-			</div>
-		</div>
-                <div class="dropdown">
-			<button class="dropbtn">
-				Fitness
-			</button>
-		        <div class="dropdown-content">
-				<a href="fitness.html#WEIGHTS">Weights</a>
-				<a href="fitness.html#CARDIO">Cardio</a>
-			        <a href="fitness.html#CALI">Calisthenics</a>
-			        <a href="fitness.html#VOLTRA">Volume Training</a>
-			        <a href="fitness.html#SUPPS">Supplements</a>
-			        <a href="fitness.html#SAUNA">Sauna</a>
-			</div>
-		</div>
-                <div class="dropdown">
-			<button class="dropbtn">
-				Lifestyle
-			</button>
-		        <div class="dropdown-content">
-				<a href="lifestyle.html#MINI">Minimalism</a>
-				<a href="lifestyle.html#RISEEAR">Rise Early</a>
-			        <a href="lifestyle.html#FLOSLE">Floor Sleeping</a>
-			        <a href="lifestyle.html#BAW">Book a Week</a>
-			        <a href="lifestyle.html#TBA">?</a>
-			        <a href="lifestyle.html#TTBA">?</a>
-			</div>
-                </div>
-                <div class="dropdown">
-			<button class="dropbtn">
-				Education
-			</button>
-		        <div class="dropdown-content">
-				<a href="education.html#Networking">Networking</a>
-				<a href="education.html#PYTHON">Python</a>
-			        <a href="education.html#JAVA">Java</a>
-			        <a href="education.html#VIM">VIM</a>
-			        <a href="education.html#CTFSEC">CTF-Security</a>
-			        <a href="education.html#MATH">Math</a>
-			</div>
-		</div>	
-                <div class="dropdown">
-			<button class="dropbtn">
-				Projects
-			</button>
-		        <div class="dropdown-content">
-				<a href="projects.html#PRO1">Project One</a>
-				<a href="projects.html#PRO2">Project Two</a>
-			        <a href="projects.html#PRO3">Project Three</a>
-			        <a href="projects.html#PRO4">Project Four</a>
-			        <a href="projects.html#PRO5">Project Five</a>
-			        <a href="projects.html#PRO6">Project Six</a>
-			</div>
-		</div>
-                <div class="dropdown">
-			<button class="dropbtn">
-				Library
-			</button>
-		        <div class="dropdown-content">
-				<a href="library.html#PDF">PDF Collection</a>
-				<a href="library.html#BAWC">Bookw a week Collection</a>
-			        <a href="library.html#VIDLIB">Video Library</a>
-			        <a href="library.html#GOOFU">Google-Fu</a>
-			        <a href="library.html#TBA">?</a>
-			        <a href="library.html#TTBA">?</a>
-			</div>
-		</div>
-</div>
-<div class="row">
-  <div class="side">.........</div>
-  <div class="main">.........</div>
-</div>
-<div class="footer">
-  <h2>Footer</h2>
+
+<h1>The 12 Hallmarks of Aging</h1>
+<p class="subtitle">López-Otín et al., <em>Cell</em> 2023 — Interactive therapeutics map & 24-hour protocol</p>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="showSection('hallmarks')">🧬 Hallmarks</button>
+  <button class="nav-btn" onclick="showSection('protocol')">⏰ 24-Hour Protocol</button>
 </div>
 
+<!-- ====== SECTION 1: HALLMARKS ====== -->
+<div class="section active" id="sec-hallmarks">
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#4ade80"></div> Proven / Clinical</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div> Experimental</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div> Lifestyle</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Supplement</div>
+</div>
+<div class="grid" id="grid"></div>
+<div class="overlap-bar">
+  <h3>📊 Therapy Overlap — Most Common Across Hallmarks</h3>
+  <div class="overlap-grid" id="overlapGrid"></div>
+</div>
+</div>
+
+<!-- ====== SECTION 2: PROTOCOL ====== -->
+<div class="section" id="sec-protocol">
+<div class="protocol-section">
+
+<h2>24-Hour Hallmarks Protocol</h2>
+<p class="proto-sub">OMAD Keto · 23-hr fast · Sleep 10 PM – 6:30 AM · All times adjustable ±30 min</p>
+
+<!-- Timeline -->
+<div class="proto-block">
+  <h3><span class="emoji">🕐</span> Daily Timeline</h3>
+  <table class="proto-table">
+    <thead><tr><th>Time</th><th>Action</th><th>Hallmarks</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><span class="time-badge">6:30 AM</span></td><td>Wake. 500 ml water + pinch of salt</td><td><div class="hallmark-pills"><span class="hallmark-pill">—</span></div></td><td class="note-text">Electrolytes to start fast</td></tr>
+      <tr><td><span class="time-badge">7:00 AM</span></td><td><strong>Fasted supplement stack</strong> (water only)</td><td><div class="hallmark-pills"><span class="hallmark-pill">1</span><span class="hallmark-pill">3</span><span class="hallmark-pill">4</span><span class="hallmark-pill">5</span><span class="hallmark-pill">6</span><span class="hallmark-pill">7</span><span class="hallmark-pill">8</span><span class="hallmark-pill">9</span><span class="hallmark-pill">11</span></div></td><td class="note-text">See AM stack below</td></tr>
+      <tr><td><span class="time-badge">7:30 AM</span></td><td><strong>Zone 2 cardio</strong> (30–45 min: walk, cycle, swim)</td><td><div class="hallmark-pills"><span class="hallmark-pill">5</span><span class="hallmark-pill">6</span><span class="hallmark-pill">7</span><span class="hallmark-pill">8</span><span class="hallmark-pill">11</span></div></td><td class="note-text">Fasted = max fat oxidation + autophagy</td></tr>
+      <tr><td><span class="time-badge">8:15 AM</span></td><td><strong>Cold exposure</strong> (shower/plunge, 2–5 min)</td><td><div class="hallmark-pills"><span class="hallmark-pill">7</span><span class="hallmark-pill">8</span><span class="hallmark-pill">11</span><span class="hallmark-pill">12</span></div></td><td class="note-text">Post-exercise → BDNF, brown fat</td></tr>
+      <tr><td><span class="time-badge">8:30 AM</span></td><td><strong>Floor sleeping / grounding</strong> (bare skin on floor, 10–15 min)</td><td><div class="hallmark-pills"><span class="hallmark-pill">1</span><span class="hallmark-pill">10</span></div></td><td class="note-text">Parasympathetic shift, reduced EMF</td></tr>
+      <tr><td><span class="time-badge">9:00 AM</span></td><td>Work / mental task</td><td><div class="hallmark-pills"><span class="hallmark-pill">10</span></div></td><td></td></tr>
+      <tr><td><span class="time-badge">12:00 PM</span></td><td><strong>Meditation / breathwork</strong> (10–20 min: box breathing, NSDR)</td><td><div class="hallmark-pills"><span class="hallmark-pill">2</span><span class="hallmark-pill">3</span><span class="hallmark-pill">10</span><span class="hallmark-pill">11</span></div></td><td class="note-text">Lowers cortisol → protects telomeres</td></tr>
+      <tr><td><span class="time-badge">2:00 PM</span></td><td><strong>Resistance training</strong> (45–60 min: compound lifts)</td><td><div class="hallmark-pills"><span class="hallmark-pill">4</span><span class="hallmark-pill">5</span><span class="hallmark-pill">6</span><span class="hallmark-pill">7</span><span class="hallmark-pill">8</span><span class="hallmark-pill">9</span><span class="hallmark-pill">11</span></div></td><td class="note-text">Fasted → GH spike + autophagy. Protein at meal post-WO</td></tr>
+      <tr><td><span class="time-badge">3:30 PM</span></td><td><strong>Sauna</strong> (80–90 °C, 20 min) or <strong>steam room</strong> (40–50 °C, 30 min)</td><td><div class="hallmark-pills"><span class="hallmark-pill">1</span><span class="hallmark-pill">4</span><span class="hallmark-pill">5</span><span class="hallmark-pill">7</span><span class="hallmark-pill">8</span><span class="hallmark-pill">10</span><span class="hallmark-pill">11</span></div></td><td class="note-text">HSPs → proteostasis; parasympathetic; ↓ SASP</td></tr>
+      <tr><td><span class="time-badge">4:00 PM</span></td><td>Cool down. 500 ml water + electrolytes (Na, K, Mg)</td><td><div class="hallmark-pills"><span class="hallmark-pill">—</span></div></td><td class="note-text">Rehydrate post-sauna</td></tr>
+      <tr><td><span class="time-badge">5:00 PM</span></td><td>🍽️ <strong>THE MEAL</strong> (keto, 70% fat) + <strong>Fed supplement stack</strong></td><td><div class="hallmark-pills"><span class="hallmark-pill">2</span><span class="hallmark-pill">3</span><span class="hallmark-pill">5</span><span class="hallmark-pill">6</span><span class="hallmark-pill">7</span><span class="hallmark-pill">8</span><span class="hallmark-pill">9</span><span class="hallmark-pill">10</span><span class="hallmark-pill">11</span><span class="hallmark-pill">12</span></div></td><td class="note-text">See meal + PM stack below</td></tr>
+      <tr><td><span class="time-badge">6:30 PM</span></td><td><strong>Walk</strong> (15–20 min, easy)</td><td><div class="hallmark-pills"><span class="hallmark-pill">6</span><span class="hallmark-pill">10</span><span class="hallmark-pill">11</span><span class="hallmark-pill">12</span></div></td><td class="note-text">Aids digestion, ↓ post-meal glucose</td></tr>
+      <tr><td><span class="time-badge">8:00 PM</span></td><td><strong>Rapamycin</strong> (10–15 mg, 2×/week: Mon + Thu, fasted)</td><td><div class="hallmark-pills"><span class="hallmark-pill">4</span><span class="hallmark-pill">5</span><span class="hallmark-pill">6</span><span class="hallmark-pill">8</span><span class="hallmark-pill">9</span></div></td><td class="note-text">3+ hrs post-meal. Never with grapefruit</td></tr>
+      <tr><td><span class="time-badge">9:00 PM</span></td><td><strong>Evening fasted stack</strong> (water only)</td><td><div class="hallmark-pills"><span class="hallmark-pill">2</span><span class="hallmark-pill">3</span><span class="hallmark-pill">7</span><span class="hallmark-pill">10</span><span class="hallmark-pill">11</span></div></td><td class="note-text">See PM stack below</td></tr>
+      <tr><td><span class="time-badge">9:30 PM</span></td><td>Screen off. Wind down.</td><td><div class="hallmark-pills"><span class="hallmark-pill">2</span><span class="hallmark-pill">10</span></div></td><td class="note-text">Blue light suppression → melatonin → DNA repair</td></tr>
+      <tr><td><span class="time-badge">10:00 PM</span></td><td>Sleep</td><td><div class="hallmark-pills"><span class="hallmark-pill">1</span><span class="hallmark-pill">2</span><span class="hallmark-pill">3</span><span class="hallmark-pill">5</span><span class="hallmark-pill">7</span><span class="hallmark-pill">8</span><span class="hallmark-pill">9</span><span class="hallmark-pill">10</span><span class="hallmark-pill">11</span></div></td><td class="note-text">Deep sleep = autophagy peak, glymphatic clearance</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- AM Stack -->
+<div class="proto-block">
+  <h3><span class="emoji">🌅</span> 7:00 AM — Fasted Stack (water only)</h3>
+  <table class="proto-table">
+    <thead><tr><th>Supplement</th><th>Dose</th><th>Why Fasted</th><th>Hallmarks</th></tr></thead>
+    <tbody>
+      <tr><td><strong>NMN</strong> (or NR)</td><td>500–1000 mg</td><td>Water-soluble; circadian NAD+ peak AM; empty stomach = faster absorption</td><td>1, 3, 7, 8, 9</td></tr>
+      <tr><td><strong>NAC</strong></td><td>600–1200 mg</td><td>Best absorbed fasted; glutathione precursor</td><td>4, 7, 11</td></tr>
+      <tr><td><strong>Vitamin C</strong></td><td>500–1000 mg</td><td>Water-soluble; fasted OK</td><td>7, 11</td></tr>
+      <tr><td><strong>B-complex</strong> (methylated)</td><td>1 cap</td><td>Water-soluble; energy metabolism AM</td><td>3, 7</td></tr>
+      <tr><td><strong>Probiotic</strong> (multi-strain, 50B+)</td><td>1 cap</td><td>Fasted AM = better gut transit survival</td><td>12</td></tr>
+      <tr><td><strong>Quercetin</strong></td><td>500 mg</td><td>Fasted = better absorption</td><td>4, 8, 11</td></tr>
+      <tr><td><strong>Collagen peptides</strong> (in water)</td><td>10–15 g</td><td>Fasted = amino acids don't compete with meal</td><td>9, 10</td></tr>
+      <tr><td><strong>Spermidine</strong> (wheat germ or cap)</td><td>1–3 mg</td><td>Fasted preferred for autophagy signaling</td><td>4, 5, 6, 8</td></tr>
+      <tr><td><strong>Creatine monohydrate</strong></td><td>5 g</td><td>Anytime; consistent daily</td><td>7, 9</td></tr>
+      <tr><td><strong>L-theanine</strong></td><td>100–200 mg</td><td>Fasted OK; morning focus</td><td>10, 11</td></tr>
+    </tbody>
+  </table>
+  <p class="note-text" style="margin-top:0.8rem">Total water: ~300–400 ml to swallow.</p>
+</div>
+
+<!-- PM Stack -->
+<div class="proto-block">
+  <h3><span class="emoji">🍽️</span> 5:00 PM — Fed Stack (with keto meal, fat essential)</h3>
+  <table class="proto-table">
+    <thead><tr><th>Supplement</th><th>Dose</th><th>Why With Fat</th><th>Hallmarks</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Resveratrol</strong> (trans, 50:50+)</td><td>500–1000 mg</td><td>Fat-soluble; needs micelle formation</td><td>1, 3, 7, 8, 11</td></tr>
+      <tr><td><strong>Vitamin D3 + K2</strong></td><td>5000 IU + 200 mcg</td><td>Fat-soluble; 32% better absorption with fat</td><td>1, 8, 9, 10, 11</td></tr>
+      <tr><td><strong>Omega-3s</strong> (EPA/DHA 2:1)</td><td>2–3 g combined</td><td>Fat-soluble; 95% absorption with fatty meal</td><td>8, 10, 11, 12</td></tr>
+      <tr><td><strong>CoQ10 / Ubiquinol</strong></td><td>200–300 mg</td><td>Fat-soluble</td><td>7</td></tr>
+      <tr><td><strong>Astaxanthin</strong></td><td>12 mg</td><td>Fat-soluble</td><td>1, 4, 7, 11</td></tr>
+      <tr><td><strong>PQQ</strong></td><td>10–20 mg</td><td>With food; mitochondrial biogenesis</td><td>7</td></tr>
+      <tr><td><strong>Urolithin A</strong></td><td>500 mg</td><td>Lipophilic</td><td>7</td></tr>
+      <tr><td><strong>Curcumin</strong> (95% curcuminoids + piperine)</td><td>500–1000 mg</td><td>Fat + piperine = 2000% bioavailability</td><td>4, 8, 11</td></tr>
+      <tr><td><strong>Berberine</strong> (1st dose)</td><td>500 mg</td><td>Acts on glucose transport with meal</td><td>6, 12</td></tr>
+      <tr><td><strong>Fisetin</strong></td><td>100–200 mg</td><td>With food reduces GI upset</td><td>8</td></tr>
+      <tr><td><strong>MitoQ</strong></td><td>100–300 mg</td><td>Fat-soluble</td><td>7</td></tr>
+      <tr><td><strong>Alpha-lipoic acid</strong></td><td>300–600 mg</td><td>With food (reduces nausea)</td><td>6, 7, 11</td></tr>
+      <tr><td><strong>Zinc</strong> (picolinate/bisglycinate)</td><td>15–30 mg</td><td>With food (nausea fasted)</td><td>10, 11, 12</td></tr>
+      <tr><td><strong>Selenium</strong></td><td>100–200 mcg</td><td>With food</td><td>1, 2</td></tr>
+      <tr><td><strong>Vitamin E</strong> (mixed tocopherols)</td><td>400 IU</td><td>Fat-soluble</td><td>1, 2, 7</td></tr>
+      <tr><td><strong>Astragalus extract</strong></td><td>500 mg</td><td>With food</td><td>2, 9</td></tr>
+      <tr><td><strong>Prebiotic fiber</strong> (inulin/FOS/GOS)</td><td>5–10 g</td><td>With food; feeds butyrate producers</td><td>12</td></tr>
+      <tr><td><strong>Postbiotic / Butyrate</strong></td><td>300–500 mg</td><td>With food</td><td>12</td></tr>
+      <tr><td><strong>Polyphenol blend</strong> (berries, cocoa, EGCG)</td><td>per label</td><td>With food</td><td>7, 11, 12</td></tr>
+      <tr><td><strong>Ashwagandha</strong> (KSM-66)</td><td>300–600 mg</td><td>With food</td><td>10, 11</td></tr>
+      <tr><td><strong>Ginkgo biloba</strong></td><td>120–240 mg</td><td>With food</td><td>2, 10</td></tr>
+      <tr><td><strong>Boswellia</strong> (AKBA)</td><td>250–500 mg</td><td>With food</td><td>11</td></tr>
+      <tr><td><strong>Ginger extract</strong></td><td>500 mg</td><td>With food</td><td>11, 12</td></tr>
+      <tr><td><strong>Gymnema sylvestre</strong></td><td>400 mg</td><td>With food (masks bitterness)</td><td>6</td></tr>
+      <tr><td><strong>Chromium</strong> (picolinate)</td><td>200 mcg</td><td>With food</td><td>6</td></tr>
+      <tr><td><strong>Fenugreek extract</strong></td><td>500 mg</td><td>With food</td><td>6</td></tr>
+      <tr><td><strong>L-glutamine</strong></td><td>5 g</td><td>With food</td><td>12</td></tr>
+      <tr><td><strong>Zinc carnosine</strong></td><td>75 mg</td><td>With food</td><td>12</td></tr>
+      <tr><td><strong>Saccharomyces boulardii</strong></td><td>250 mg</td><td>With food</td><td>12</td></tr>
+      <tr><td><strong>Whey / collagen</strong> (if not AM)</td><td>20–30 g protein</td><td>With food</td><td>4, 9</td></tr>
+      <tr><td><strong>Methylfolate (5-MTHF)</strong></td><td>400–800 mcg</td><td>With food</td><td>3</td></tr>
+      <tr><td><strong>SAMe</strong></td><td>400–800 mg</td><td>With food</td><td>3</td></tr>
+      <tr><td><strong>Folate</strong></td><td>400 mcg DFE</td><td>With food</td><td>3</td></tr>
+      <tr><td><strong>Vitamin B12</strong> (methylcobalamin)</td><td>1000 mcg</td><td>With food</td><td>3, 7</td></tr>
+      <tr><td><strong>TMG</strong> (trimethylglycine)</td><td>400–800 mg</td><td>With food; supports methylation</td><td>3</td></tr>
+      <tr><td><strong>EGCG</strong> (green tea extract)</td><td>250–500 mg</td><td>With food (reduces liver stress)</td><td>4, 8, 11, 12</td></tr>
+      <tr><td><strong>Sulforaphane</strong> (broccoli seed)</td><td>30–60 mg</td><td>With food</td><td>1, 3, 11</td></tr>
+    </tbody>
+  </table>
+  <p class="note-text" style="margin-top:0.8rem">⚠️ That's a lot of pills. Split into 2 batches: half with first bite, half 15 min later while still eating. Or use a 2-slot "meal" pill organizer.</p>
+</div>
+
+<!-- Evening Stack -->
+<div class="proto-block">
+  <h3><span class="emoji">🌙</span> 9:00 PM — Evening Fasted Stack (water only)</h3>
+  <table class="proto-table">
+    <thead><tr><th>Supplement</th><th>Dose</th><th>Why</th><th>Hallmarks</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Magnesium</strong> (glycinate or threonate)</td><td>400 mg</td><td>Evening = sleep + mitochondrial; fasted OK</td><td>7, 10, 11</td></tr>
+      <tr><td><strong>Berberine</strong> (2nd dose)</td><td>500 mg</td><td>Fasted 3+ hrs post-meal = overnight glucose control</td><td>6, 12</td></tr>
+      <tr><td><strong>L-theanine</strong> (2nd dose)</td><td>100 mg</td><td>Sleep support</td><td>10</td></tr>
+      <tr><td><strong>Glycine</strong></td><td>3–5 g</td><td>Sleep quality; collagen synthesis</td><td>4, 9, 10</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Meal -->
+<div class="proto-block">
+  <h3><span class="emoji">🍽️</span> The Keto OMAD Meal (5:00 PM)</h3>
+  <div class="meal-macro">
+    <div class="macro-card"><div class="val">180–200 g</div><div class="label">Fat (70–75%)</div></div>
+    <div class="macro-card"><div class="val">100–120 g</div><div class="label">Protein (30–35%)</div></div>
+    <div class="macro-card"><div class="val">&lt; 20 g</div><div class="label">Net Carbs (&lt;5%)</div></div>
+    <div class="macro-card"><div class="val">2200–2500</div><div class="label">Calories</div></div>
+  </div>
+  <table class="proto-table">
+    <thead><tr><th>Component</th><th>Amount</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Grass-fed ribeye or fatty fish (salmon)</td><td>200–250 g</td><td>Protein + omega-3 + fat</td></tr>
+      <tr><td>Avocado</td><td>1 whole</td><td>MCTs + fat for supplement absorption</td></tr>
+      <tr><td>Extra-virgin olive oil (drizzled)</td><td>2 tbsp</td><td>Fat for resveratrol, D3, astaxanthin</td></tr>
+      <tr><td>Butter (grass-fed) or MCT oil</td><td>2 tbsp</td><td>Ketone support</td></tr>
+      <tr><td>Leafy greens + cruciferous veg (broccoli, cauliflower)</td><td>2 cups</td><td>Fiber + sulforaphane + polyphenols</td></tr>
+      <tr><td>Fermented food (sauerkraut, kimchi)</td><td>¼ cup</td><td>Probiotics + butyrate precursors</td></tr>
+      <tr><td>Walnuts or macadamia nuts</td><td>30 g</td><td>Omega-3 + fat</td></tr>
+      <tr><td>Berries (blackberries, raspberries)</td><td>½ cup</td><td>Polyphenols + fiber (under carb limit)</td></tr>
+      <tr><td>Collagen peptides (stirred in)</td><td>15 g</td><td>Joint / stem cell support</td></tr>
+    </tbody>
+  </table>
+  <p class="note-text" style="margin-top:0.8rem">🔄 <strong>Diet rotation (weekly):</strong> Rotate protein sources (beef → fish → eggs → lamb) and vegetable types. Target 30+ plant species/week for microbiome diversity.</p>
+</div>
+
+<!-- Weekly Schedule -->
+<div class="proto-block">
+  <h3><span class="emoji">📅</span> Weekly / Multi-Day Additions</h3>
+  <table class="proto-table">
+    <thead><tr><th>Frequency</th><th>Therapy</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Daily</td><td>OMAD (23 hr fast)</td><td>Autophagy, mTOR suppression, insulin sensitivity</td></tr>
+      <tr><td>Daily</td><td>Sauna (20 min) or steam room (30 min)</td><td>HSPs, parasympathetic, proteostasis</td></tr>
+      <tr><td>Daily</td><td>Cold exposure (2–5 min)</td><td>Brown fat, BDNF, anti-inflammatory</td></tr>
+      <tr><td>Daily</td><td>Zone 2 cardio (30–45 min)</td><td>Mitochondrial biogenesis</td></tr>
+      <tr><td>3–4×/week</td><td>Resistance training (45–60 min)</td><td>Proteostasis, stem cells, IGF-1 modulation</td></tr>
+      <tr><td>2×/week</td><td>Rapamycin (10–15 mg, fasted)</td><td>mTOR inhibition — never same day as intense exercise</td></tr>
+      <tr><td>1×/week</td><td>Extended fast (36–48 hr, water/electrolytes only)</td><td>Deep autophagy, stem cell renewal, immune reset</td></tr>
+      <tr><td>1×/week</td><td>Diet rotation: change all protein + 5+ veg types</td><td>Microbiome diversity</td></tr>
+      <tr><td>1×/month</td><td>Infrared sauna (120 min) or contrast (sauna → cold × 3)</td><td>Deeper HSP response</td></tr>
+      <tr><td>Monthly</td><td>Bloodwork: hs-CRP, HbA1c, lipid panel, vit D, B12, testosterone</td><td>Track inflammaging + nutrient status</td></tr>
+      <tr><td>Quarterly</td><td>Epigenetic clock test (GrimAge / DunedinPACE)</td><td>Track biological age</td></tr>
+      <tr><td>Yearly</td><td>Full body scan (low-dose CT)</td><td>Genomic instability surveillance</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Interactions -->
+<div class="proto-block">
+  <h3><span class="emoji">⚠️</span> Critical Interactions & Rules</h3>
+  <div class="warn-box">
+    <h4>Do NOT combine / separate these:</h4>
+    <ul>
+      <li><strong>Rapamycin ≠ exercise same day</strong> — mTOR inhibition blunts muscle protein synthesis; separate by ≥ 24 hrs</li>
+      <li><strong>Rapamycin ≠ grapefruit</strong> — Grapefruit inhibits CYP3A4 → rapamycin levels spike 4×</li>
+      <li><strong>Berberine ≠ metformin (if on both)</strong> — Additive hypoglycemia risk; monitor glucose</li>
+      <li><strong>Iron ≠ calcium, zinc, coffee</strong> — Compete for absorption; separate by 2 hrs</li>
+      <li><strong>Vitamin D3 always with K2</strong> — Directs calcium to bone, not arteries</li>
+      <li><strong>NMN ≠ evening</strong> — Blunts nocturnal SIRT1 circadian pattern (Peek et al. 2013)</li>
+      <li><strong>Fisetin cycling</strong> — Use 2 days/month (e.g. 24th–25th) at 100 mg/kg divided; daily use may be pro-survival</li>
+      <li><strong>Extended fasts: electrolytes</strong> — Sodium 5–10 g/day, potassium 1–2 g/day, magnesium 400 mg — prevents hyponatremia</li>
+      <li><strong>Floor sleeping / grounding</strong> — Keep bare skin contact; no socks; 15 min AM + optional 30 min PM</li>
+      <li><strong>Sauna ≠ alcohol</strong> — Dehydration + vasodilation = hypotension risk</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Not Yet Available -->
+<div class="proto-block">
+  <h3><span class="emoji">🔬</span> Not Yet Available (Preclinical / In Trials)</h3>
+  <table class="proto-table">
+    <thead><tr><th>Therapy</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Yamanaka factors / OSK reprogramming</td><td>Preclinical (mouse data); not available to humans</td></tr>
+      <tr><td>Senolytic cocktails (D+Q, navitoclax)</td><td>Clinical trials ongoing; D+Q use only under supervision, 2 days every 2–4 weeks</td></tr>
+      <tr><td>Parabiosis / plasma exchange</td><td>Experimental; TAME trial (2023) showed no significant benefit in young recipients</td></tr>
+      <tr><td>Stem cell transplant (autologous CD34+)</td><td>Available in some clinics; evidence still thin</td></tr>
+      <tr><td>Telomerase gene therapy</td><td>Preclinical</td></tr>
+      <tr><td>CRISPR DNA repair</td><td>Preclinical</td></tr>
+      <tr><td>Senolytic vaccines</td><td>Preclinical (mouse data only)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Disclaimer -->
+<div class="proto-block" style="border-color:#4a3a1a; background:#1a1a14;">
+  <h3 style="color:#fbbf24">⚕️ Disclaimer</h3>
+  <p style="font-size:0.85rem; color:#ccc; line-height:1.6;">This is an aggressive protocol. Most people should start with the lifestyle pillars (OMAD, exercise, sauna, sleep, diet rotation) + a smaller supplement subset (NMN, omega-3s, D3/K2, magnesium, NAC, resveratrol) and add from there. <strong>Not medical advice.</strong> Get bloodwork and a physician's sign-off before starting rapamycin, metformin, or any Rx compound.</p>
+</div>
+
+</div><!-- /protocol-section -->
+</div><!-- /sec-protocol -->
+
+<div class="footer">
+  Based on López-Otín et al. (2023) <em>Cell</em>; Frontiers in Cardiovascular Medicine (2025); MDPI IJMS (2025); PMC reviews. Not medical advice.
+</div>
+
+<script>
+// Navigation
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Hallmarks data
+const hallmarks = [
+  { id:1, title:"Genomic Instability", category:"primary", desc:"Progressive accumulation of DNA damage, mutations, and chromosomal aberrations. The root cause of most downstream aging processes.", therapies:{ proven:["Exercise","Caloric restriction","Sleep optimization","Avoid UV/oxidants"], experimental:["PARP activators","DNA repair gene therapy","CRISPR-based repair","Senolytics (reduce mutagenic SASP)"], lifestyle:["Sauna (heat stress → DNA repair)","Cold exposure","Fasting / extended fasting","Floor sleeping (grounding, reduced EMF)"], supplements:["NAD+ precursors (NMN, NR)","Resveratrol","Metformin","Rapamycin","Fisetin","Astaxanthin","Glutathione","Vitamin D3","Omega-3s"] } },
+  { id:2, title:"Telomere Attrition", category:"primary", desc:"Progressive shortening of protective telomeric caps at chromosome ends, limiting replicative potential and triggering senescence.", therapies:{ proven:["Exercise","Stress management (meditation)","Caloric restriction","Avoid chronic inflammation"], experimental:["Telomerase gene therapy (TERT)","TA-65 (azadirachtin)","Telomerase activators (GRN1701)","NAD+ precursors (indirect)"], lifestyle:["Sauna","Sleep (7+ hrs)","Meditation / breathwork","Fasting","Avoid overtraining"], supplements:["TA-65 (azadirachtin)","NAD+ precursors (NMN, NR)","Resveratrol","CoQ10","Astragalus extract","Ginkgo biloba","Vitamin E","Selenium"] } },
+  { id:3, title:"Epigenetic Alterations", category:"primary", desc:"Drift in DNA methylation, histone modifications, and chromatin structure, leading to loss of proper gene expression identity.", therapies:{ proven:["Exercise","Caloric restriction","Fasting / time-restricted eating","Sleep"], experimental:["Yamanaka factors (OSK) partial reprogramming","HDAC inhibitors","Epigenetic clock reversal (Altos Labs)","mTOR inhibition","Metformin (epigenetic effects)"], lifestyle:["Sauna","Cold exposure","Fasting / extended fasting","Meditation","Sleep optimization","Avoid chronic stress"], supplements:["NAD+ precursors (NMN, NR)","Resveratrol","Fisetin","Berberine","Alpha-lipoic acid","Curcumin","Folate (5-MTHF)","Vitamin B12","SAMe"] } },
+  { id:4, title:"Loss of Proteostasis", category:"primary", desc:"Decline in protein quality control — misfolded proteins accumulate, proteasome and chaperone systems become overwhelmed.", therapies:{ proven:["Exercise (especially resistance training)","Caloric restriction","Fasting","Adequate protein intake (youth)"], experimental:["Rapamycin / mTOR inhibitors","Heat shock protein inducers","Proteasome activators","Chaperone upregulation"], lifestyle:["Sauna (heat shock → HSPs)","Hot bath","Cold exposure","Fasting / extended fasting","Exercise (HIIT, resistance)"], supplements:["Spermidine","Resveratrol","Curcumin","Quercetin","NAC","Alpha-lipoic acid","Whey protein (leucine)","Collagen peptides"] } },
+  { id:5, title:"Disabled Macroautophagy", category:"primary", desc:"Decline in the cell's recycling system (autophagy/mitophagy), causing accumulation of damaged organelles and proteins.", therapies:{ proven:["Fasting / extended fasting","Exercise (aerobic + resistance)","Caloric restriction","Time-restricted eating"], experimental:["Rapamycin","Spermidine (high dose)","mTOR inhibitors","AMPK activators","TFEB activators"], lifestyle:["Fasting (16+ hrs)","Extended fasting (48–72 hrs)","Exercise (fasted training)","Cold exposure","Sauna","Sleep (deep sleep → autophagy)","Intermittent fasting"], supplements:["Spermidine","Resveratrol","NAD+ precursors (NMN, NR)","Berberine","Quercetin","EGCG (green tea)","Ginseng","Cinnamon extract"] } },
+  { id:6, title:"Deregulated Nutrient Sensing", category:"antagonistic", desc:"Chronic overactivation of mTOR, insulin/IGF-1, and reduced AMPK/sirtuin signaling — metabolic drift toward anabolic excess.", therapies:{ proven:["Caloric restriction (15–25%)","Intermittent fasting","Exercise","Time-restricted eating"], experimental:["Rapamycin (mTOR inhibitor)","Metformin (AMPK activator)","Insulin sensitizers","IGF-1 modulators"], lifestyle:["Fasting / extended fasting","Time-restricted eating (12–16 hr window)","Exercise (fasted cardio)","Avoiding sugar/saturated fat","Cold exposure","Sauna"], supplements:["Berberine","Metformin (Rx)","Rapamycin (Rx, experimental)","Resveratrol","NAD+ precursors (NMN, NR)","Alpha-lipoic acid","Cinnamon","Gymnema sylvestre","Chromium","Fenugreek"] } },
+  { id:7, title:"Mitochondrial Dysfunction", category:"antagonistic", desc:"Decline in mitochondrial biogenesis, membrane potential, and mitophagy — less ATP, more ROS and DAMPs.", therapies:{ proven:["Exercise (aerobic + resistance)","Caloric restriction","Fasting","Adequate sleep"], experimental:["Urolithin A (mitophagy)","MitoQ (mitochondrial-targeted CoQ10)","NAD+ precursors","PQQ (mitochondrial biogenesis)","SS-31 (elamipretide)","Mitochondrial transplant (experimental)"], lifestyle:["Exercise (zone 2 cardio)","Cold exposure","Sauna","Fasting / extended fasting","Sleep (deep sleep → biogenesis)","Avoid overtraining"], supplements:["Urolithin A","PQQ","CoQ10 / Ubiquinol","MitoQ","NAD+ precursors (NMN, NR)","Acetyl-L-carnitine","Alpha-lipoic acid","Creatine","Magnesium (mitochondrial)","Spirulina","Wine polyphenols (ellagic acid)"] } },
+  { id:8, title:"Cellular Senescence", category:"antagonistic", desc:"Accumulation of senescent cells that secrete pro-inflammatory, proteolytic factors (SASP), driving local and systemic aging.", therapies:{ proven:["Exercise","Fasting","Caloric restriction","Immune system support"], experimental:["Senolytics: Dasatinib + Quercetin (D+Q)","Fisetin (senolytic)","Navitoclax (BCL-2/3/6 inhibitor)","Senolytic vaccines (experimental)","Senomorphics (metformin, rapamycin, dasatinib low-dose)"], lifestyle:["Fasting / extended fasting","Exercise","Sauna","Sleep optimization","Stress management","Avoid chronic inflammation"], supplements:["Fisetin","Quercetin","Dasatinib (Rx, experimental)","Resveratrol","NAD+ precursors (NMN, NR)","Metformin (Rx)","Rapamycin (Rx, experimental)","Curcumin","Green tea (EGCG)","Omega-3s"] } },
+  { id:9, title:"Stem Cell Exhaustion", category:"integrative", desc:"Decline in the regenerative capacity of stem cells across tissues — reduced self-renewal, differentiation, and niche support.", therapies:{ proven:["Exercise","Fasting","Caloric restriction","Avoiding chronic inflammation"], experimental:["Stem cell transplantation (autologous)","Yamanaka factors (OSK) partial reprogramming","Niche modulation","Parabiosis / plasma exchange","Growth factor therapy"], lifestyle:["Fasting / extended fasting (stem cell renewal)","Exercise","Sleep optimization","Sauna","Cold exposure","Avoid overtraining"], supplements:["NAD+ precursors (NMN, NR)","Resveratrol","Rapamycin (Rx, experimental)","Metformin (Rx)","Collagen peptides","Vitamin D3","Omega-3s","Astragalus","Ginseng"] } },
+  { id:10, title:"Altered Intercellular Communication", category:"integrative", desc:"Changes in hormonal, neural, immune, and paracrine signaling — endocrine resistance, altered neurotransmission, immune dysregulation.", therapies:{ proven:["Exercise","Adequate sleep","Anti-inflammatory diet","Social connection"], experimental:["Exosome therapy","Parabiosis / plasma exchange","NAD+ boosters (signaling)","Peptide therapy (experimental)","Gut-brain axis modulation"], lifestyle:["Exercise","Sleep (7–9 hrs)","Sauna (parasympathetic activation)","Cold exposure","Fasting","Meditation / breathwork","Social engagement","Floor sleeping (grounding)"], supplements:["NAD+ precursors (NMN, NR)","Omega-3s (DHA/EPA)","Magnesium","Probiotics","Polyphenols","Ashwagandha (adaptogen)","L-theanine","Ginkgo biloba"] } },
+  { id:11, title:"Chronic Inflammation (Inflammaging)", category:"integrative", desc:"Persistent, low-grade, sterile inflammation driven by immune aging, senescent cell SASP, and mitochondrial DAMPs.", therapies:{ proven:["Exercise","Anti-inflammatory diet (Mediterranean)","Weight management","Sleep","Fasting"], experimental:["IL-1β / IL-6 inhibitors","Senolytics (reduce SASP source)","Metformin (anti-inflammatory)","NLRP3 inflammasome inhibitors","Apolipoprotein A1 mimetics"], lifestyle:["Exercise","Fasting / extended fasting","Sauna","Cold exposure","Meditation / stress reduction","Sleep optimization","Anti-inflammatory diet","Avoid processed food/sugar"], supplements:["Omega-3s (EPA/DHA)","Curcumin (with piperine)","Resveratrol","Quercetin","Fisetin","NAC","Vitamin D3","Boswellia","Ginger","Turmeric","Green tea (EGCG)","Collagen"] } },
+  { id:12, title:"Dysbiosis", category:"integrative", desc:"Age-related shifts in gut microbiome composition — reduced diversity, loss of butyrate producers, increased pathobionts.", therapies:{ proven:["Diverse, fiber-rich diet","Regular exercise","Avoiding unnecessary antibiotics","Fermented foods"], experimental:["Targeted probiotics / postbiotics","Fecal microbiota transplant (FMT)","Urolithin A (microbiome-derived)","Phage therapy","Prebiotic cocktails (specific strains)"], lifestyle:["Diet rotation (diverse plant foods, 30+ species/wk)","Fermented foods (kimchi, kefir, sauerkraut)","Exercise","Fasting (gut rest)","Avoid ultra-processed food","Adequate sleep (gut-brain axis)"], supplements:["Probiotics (multi-strain)","Prebiotics (inulin, FOS, GOS)","Postbiotics (butyrate, urolithin A)","Polyphenols (berries, cocoa, green tea)","Berberine (gut health)","Zinc carnosine","L-glutamine","Saccharomyces boulardii"] } }
+];
+
+const catLabels = { primary:'Primary', antagonistic:'Antagonistic', integrative:'Integrative' };
+
+// Build hallmark cards
+const grid = document.getElementById('grid');
+hallmarks.forEach(h => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="card-number">${h.id}</div>
+      <div class="card-title">${h.title}</div>
+    </div>
+    <span class="card-category cat-${h.category}">${catLabels[h.category]}</span>
+    <p class="card-desc">${h.desc}</p>
+    <div class="tooltip">
+      <h4>Therapies & Interventions</h4>
+      <div class="tooltip-desc">${h.desc}</div>
+      ${Object.entries(h.therapies).map(([type, items]) => `
+        <div class="therapy-section">
+          <h5>${type.charAt(0).toUpperCase()+type.slice(1)}</h5>
+          <div class="therapy-tags">
+            ${items.map(t => `<span class="tag tag-${type}">${t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+// Overlap calculation
+const therapyCount = {};
+hallmarks.forEach(h => {
+  Object.values(h.therapies).flat().forEach(t => {
+    const base = t.split('(')[0].trim().toLowerCase();
+    therapyCount[base] = (therapyCount[base] || 0) + 1;
+  });
+});
+const sorted = Object.entries(therapyCount).sort((a,b) => b[1]-a[1]).slice(0,20);
+const overlapGrid = document.getElementById('overlapGrid');
+sorted.forEach(([name, count]) => {
+  const el = document.createElement('span');
+  el.className = 'overlap-item';
+  el.innerHTML = `${name} <strong>×${count}</strong>`;
+  overlapGrid.appendChild(el);
+});
+</script>
 </body>
-</html>
+</html>   
